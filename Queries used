@@ -1,0 +1,165 @@
+-- Select the data that we will be using 
+Select Location, date, total_cases, new_cases, total_deaths, population
+
+From `automated-alloy-389201.Covid_data.Covid_Deaths`
+
+order by 1,2 
+
+-- Looking at the Total_Cases vs. Total Deaths
+-- Shows the likelihood of death if you contract covid by country
+
+Select Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as death_percentage
+From `automated-alloy-389201.Covid_data.Covid_Deaths`
+WHERE REGEXP_CONTAINS(Location, r'States$')
+order by 1,2 
+
+-- shows the percent of population that has covid
+
+Select Location, date, total_cases, population, (total_cases/population)*100 as contraction_percentage
+From `automated-alloy-389201.Covid_data.Covid_Deaths`
+WHERE REGEXP_CONTAINS(Location, r'States$')
+order by 1,2 
+
+--Looking at countries with highest infection rates
+
+Select Location, MAX(total_cases) as highestinfectioncount, population, MAX((total_cases/population))*100 as percentpopulationinfected
+From `automated-alloy-389201.Covid_data.Covid_Deaths`
+GROUP BY Location, Population
+order by percentpopulationinfected desc
+
+
+-- showing the countries with the highest death count per population.
+
+Select Location, MAX(cast(total_deaths as int)) as totaldeathcount
+From `automated-alloy-389201.Covid_data.Covid_Deaths`
+WHERE continent is not null
+GROUP BY Location
+order by totaldeathcount desc
+
+
+-- Breaking Things Down By Continent
+
+-- Showing continents with the highest death count per population
+
+Select continent, MAX(cast(total_deaths as int)) as totaldeathcount
+From `automated-alloy-389201.Covid_data.Covid_Deaths`
+WHERE continent is not null
+GROUP BY continent
+order by totaldeathcount desc
+
+
+-- Global Numbers
+
+Select SUM(new_cases) as total_cases, SUM(new_deaths) as total_deaths, SUM(new_deaths)/SUM(New_Cases)*100 as DeathPercentage
+From `automated-alloy-389201.Covid_data.Covid_Deaths`
+where continent is not null 
+order by 1,2
+
+-- Total Population vs Vaccinations
+-- Shows Percentage of Population that has recieved at least one Covid Vaccine
+
+Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
+, SUM(vac.new_vaccinations) OVER (Partition by dea.location Order by dea.location, dea.Date) as RollingPeopleVaccinated
+From `automated-alloy-389201.Covid_data.Covid_Deaths` as dea
+Join `automated-alloy-389201.Covid_data.CovidVaccinations` as vac
+	On dea.location = vac.location
+	and dea.date = vac.date
+where dea.continent is not null 
+order by 2,3
+
+-- Using CTE to perform Calculation on Partition By in previous query
+
+WITH PopvsVac AS (
+    SELECT
+        dea.continent,
+        dea.location,
+        dea.date,
+        dea.population,
+        vac.new_vaccinations,
+        SUM(CAST(vac.new_vaccinations AS INT64)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS RollingPeopleVaccinated
+    FROM
+        `automated-alloy-389201.Covid_data.Covid_Deaths` dea
+    JOIN
+        `automated-alloy-389201.Covid_data.CovidVaccinations` vac
+    ON
+        dea.location = vac.location
+        AND dea.date = vac.date
+    WHERE
+        dea.continent IS NOT NULL
+)
+SELECT
+    Continent,
+    Location,
+    Date,
+    Population,
+    New_Vaccinations,
+    RollingPeopleVaccinated,
+    (RollingPeopleVaccinated / Population) * 100 AS VaccinationPercentage
+FROM
+    PopvsVac;
+
+
+-- Using temp table to perform calculation on 'Partition By' in previous query
+
+CREATE OR REPLACE TABLE `automated-alloy-389201.Covid_data.PercentPopulationVaccinated` AS
+WITH PopvsVac AS (
+    SELECT
+        dea.continent,
+        dea.location,
+        dea.date,
+        dea.population,
+        vac.new_vaccinations,
+        SUM(CAST(vac.new_vaccinations AS INT64)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS RollingPeopleVaccinated
+    FROM
+        `automated-alloy-389201.Covid_data.Covid_Deaths` dea
+    JOIN
+        `automated-alloy-389201.Covid_data.CovidVaccinations` vac
+    ON
+        dea.location = vac.location
+        AND dea.date = vac.date
+)
+SELECT
+    *,
+    (RollingPeopleVaccinated / Population) * 100 AS VaccinationPercentage
+FROM
+    PopvsVac;
+
+-- Creating View to store data for later visualizations
+
+CREATE OR REPLACE VIEW `automated-alloy-389201.Covid_data.PercentPopulationVaccinated` AS
+SELECT
+    dea.continent,
+    dea.location,
+    dea.date,
+    dea.population,
+    vac.new_vaccinations,
+    SUM(vac.new_vaccinations) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS RollingPeopleVaccinated
+  FROM
+      `automated-alloy-389201.Covid_data.Covid_Deaths` dea
+  JOIN
+      `automated-alloy-389201.Covid_data.CovidVaccinations` vac
+ON
+    dea.location = vac.location
+    AND dea.date = vac.date
+WHERE
+    dea.continent IS NOT NULL;
+
+-- This is the Query used to create Table 4
+SELECT
+  Location,
+  Population,
+  date,
+  MAX(total_cases) AS HighestInfectionCount,
+  MAX((total_cases / population)) * 100 AS PercentPopulationInfected
+FROM
+  `automated-alloy-389201.Covid_data.Covid_Deaths`
+WHERE
+  Location IN ('United States', 'Mexico', 'United Kingdom', 'China', 'India', 'South Korea','Canada')
+  AND date BETWEEN '2022-01-01' AND '2023-01-01'
+GROUP BY
+  Location,
+  Population,
+  date
+ORDER BY
+  PercentPopulationInfected DESC;
+
