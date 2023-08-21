@@ -1,0 +1,41 @@
+
+Data Analyst Portfolio Project - Data Cleaning and Visualization
+Welcome to my GitHub repository for my first Data Analyst portfolio project! In this project, I showcase my skills in data cleaning, analysis, and visualization using a combination of SQL (specifically BigQuery SQL workspace), Excel, and Tableau.
+
+Project Overview
+In this project, I focused on mastering the fundamental aspects of data analysis, including data cleaning, transformation, and visualization. I used a variety of tools and techniques to ensure the data was accurate, reliable, and ready for analysis.
+
+Skills Demonstrated
+Data Cleaning: I employed SQL, specifically BigQuery SQL workspace, to clean and preprocess the raw data. This involved tasks such as handling missing values, removing duplicates, and structuring the data for analysis.
+
+Excel: As part of the data cleaning process, I utilized Excel to further refine the data. This included tasks such as formatting, formula application, and data validation.
+
+Tableau Data Visualization: After preparing the clean dataset, I used Tableau to create meaningful and insightful visualizations. These visualizations help convey patterns, trends, and insights that may not be immediately apparent in the raw data.
+
+How to Use This Repository
+Clone the Repository: Begin by cloning this repository to your local machine using the following command:
+
+bash
+Copy code
+git clone https://github.com/your-username/data-analyst-portfolio.git
+Explore the Files: Take a look at the provided files and directories to understand the project structure and contents.
+
+Review the Code: Examine the SQL queries in the sql_queries/ directory to understand the data cleaning process.
+
+View Visualizations: Navigate to the tableau_visualizations/ directory and open the Tableau packaged workbooks to explore the visualizations I created.
+
+Feel free to reach out if you have any questions or feedback. This project marks an important milestone in my journey as a Data Analyst, and I'm excited to share my progress with you!
+
+Thank you for visiting my repository!
+
+— Your Name
+
+Contact Information:
+
+Email: jwilmor1@umbc.edu
+LinkedIn: https://www.linkedin.com/in/joseph-wilmore-59612a1b9/
+
+
+
+
+
