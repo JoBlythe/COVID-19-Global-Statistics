@@ -15,9 +15,6 @@ Tableau Data Visualization: After preparing the clean dataset, I used Tableau to
 How to Use This Repository
 Clone the Repository: Begin by cloning this repository to your local machine using the following command:
 
-bash
-Copy code
-git clone https://github.com/your-username/data-analyst-portfolio.git
 Explore the Files: Take a look at the provided files and directories to understand the project structure and contents.
 
 Review the Code: Examine the SQL queries in the sql_queries/ directory to understand the data cleaning process.
